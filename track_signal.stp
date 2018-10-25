@@ -1,0 +1,12 @@
+#!/usr/bin/env stap
+
+# display signal sending activities
+probe signal.send {
+    # unix timestamp
+    # signal number
+    # pid of receiving the signal
+    # execname of receiving the signal
+    # pid of target process
+    # execname of target process
+    printf ("%d | %d | %d | %s | %d | %s\n", gettimeofday_s(), sig, sig_pid, pid_name, pid(), execname())
+}
