@@ -1,0 +1,28 @@
+#!/usr/bin/env stap
+
+# display TCP flags from receiving traffic
+global rst_f, urg_f, fin_f, syn_f, ack_f, psh_f
+
+probe tcp.receive {
+    syn_f = (syn == 1) ? "SYN" : "-"
+    ack_f = (ack == 1) ? "ACK" : "-"
+    fin_f = (fin == 1) ? "FIN" : "-"
+    rst_f = (rst == 1) ? "RST" : "-"
+    urg_f = (urg == 1) ? "URG" : "-"
+    psh_f = (psh == 1) ? "PSH" : "-"
+
+    # unix timestamp
+    # execname of target process
+    # pid of target process
+    # source port
+    # destination port
+    # source port
+    # destination port
+    # SYN flag
+    # ACK flag
+    # FIN flag
+    # RST flag
+    # URG flag
+    # PSH flag
+    printf ("%d | %s | %d | %s | %s | %d | %d | %s | %s | %s | %s | %s | %s\n", gettimeofday_s(), execname(), pid(), saddr, daddr, sport, dport, syn_f, ack_f, fin_f, rst_f, urg_f, psh_f)
+}
