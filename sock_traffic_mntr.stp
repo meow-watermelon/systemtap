@@ -1,0 +1,36 @@
+#!/usr/bin/env stap
+
+# monitor receive/send traffic on sockets
+# usage: stap sock_traffic_mntr.stp <period_secs>
+
+global receive_array, send_array
+global merge_array
+
+probe socket.receive {
+    if (success == 1)
+        receive_array[pid(), execname(), sock_prot_num2str(protocol)] <<< size
+}
+
+probe socket.send {
+    if (success == 1)
+        send_array[pid(), execname(), sock_prot_num2str(protocol)] <<< size
+
+}
+
+probe timer.s($1) {
+    printf("%8s%20s%15s%20s%20s\n", "PID", "COMMAND", "PROTOCOL", "RECEIVE_RATE(B/sec)", "SEND_RATE(B/sec)")
+
+    foreach([pid, execname, sock_proto] in receive_array)
+        merge_array[pid, execname, sock_proto] += @count(receive_array[pid, execname, sock_proto])
+
+    foreach([pid, execname, sock_proto] in send_array)
+        merge_array[pid, execname, sock_proto] += @count(send_array[pid, execname, sock_proto])
+
+    foreach([pid, execname, sock_proto] in merge_array-)
+        printf("%8d%20s%15s%20d%20d\n", pid, execname, sock_proto, @sum(receive_array[pid, execname, sock_proto])/$1, @sum(send_array[pid, execname, sock_proto])/$1)
+        printf("\n")
+
+    delete receive_array
+    delete send_array
+    delete merge_array
+}
