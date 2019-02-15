@@ -18,7 +18,7 @@ probe socket.send {
 }
 
 probe timer.s($1) {
-    printf("%8s%20s%15s%20s%20s\n", "PID", "COMMAND", "PROTOCOL", "RECEIVE_RATE(B/sec)", "SEND_RATE(B/sec)")
+    printf("%12s%8s%20s%15s%20s%20s\n", "TIMESTAMP", "PID", "COMMAND", "PROTOCOL", "RECEIVE_RATE(B/sec)", "SEND_RATE(B/sec)")
 
     foreach([pid, execname, sock_proto] in receive_array)
         merge_array[pid, execname, sock_proto] += @count(receive_array[pid, execname, sock_proto])
@@ -27,7 +27,7 @@ probe timer.s($1) {
         merge_array[pid, execname, sock_proto] += @count(send_array[pid, execname, sock_proto])
 
     foreach([pid, execname, sock_proto] in merge_array-)
-        printf("%8d%20s%15s%20d%20d\n", pid, execname, sock_proto, @sum(receive_array[pid, execname, sock_proto])/$1, @sum(send_array[pid, execname, sock_proto])/$1)
+        printf("%12d%8d%20s%15s%20d%20d\n", gettimeofday_s(), pid, execname, sock_proto, @sum(receive_array[pid, execname, sock_proto])/$1, @sum(send_array[pid, execname, sock_proto])/$1)
         printf("\n")
 
     delete receive_array
