@@ -1,0 +1,18 @@
+#!/usr/bin/env stap
+
+global sock_array
+
+probe begin {
+    printf("%12s%8s%20s%20s%10s\n", "TIMESTAMP", "PID", "COMMAND", "SOCKET OPTS", "COUNT(S)")
+}
+
+probe tcp.setsockopt {
+    sock_array[execname(), pid(), optstr] <<< 1
+}
+
+probe timer.s($1) {
+    foreach([execname, pid, sock_opts] in sock_array)
+        printf("%12d%8d%20s%20s%10d\n", gettimeofday_s(), pid, execname, sock_opts, @sum(sock_array[execname, pid, sock_opts])/$1)
+
+    delete sock_array
+}
