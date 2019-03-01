@@ -1,5 +1,8 @@
 #!/usr/bin/env stap
 
+# display TCP socket options
+# usage: stap sock_opts.stp <period_secs>
+
 global sock_array
 
 probe begin {
