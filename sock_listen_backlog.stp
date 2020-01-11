@@ -1,0 +1,13 @@
+#!/usr/bin/env stap
+
+# display TCP socket listen backlog
+# usage: stap sock_listen_backlog.stp
+
+probe syscall.listen {
+    # unix timestamp
+    # execname of target process
+    # pid of target process
+    # socket fd
+    # listen backlog value
+    printf ("%d | %s | %d | %d | %d\n", gettimeofday_s(), execname(), pid(), sockfd, backlog)
+}

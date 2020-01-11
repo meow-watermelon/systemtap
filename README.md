@@ -8,3 +8,5 @@ SystemTap Kits
 `sock_traffic_mntr.stp`: monitor receive/send traffic on sockets
 
 `sock_opts.stp`: display TCP socket options
+
+`sock_listen_backlog.stp`: display TCP socket listen backlog
